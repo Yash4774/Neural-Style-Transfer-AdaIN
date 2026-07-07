@@ -154,15 +154,6 @@ python train.py \
 
 ---
 
-# 📈 Results
-
-| Input | Style | Output |
-|-------|------|-------|
-| ✅ | 🎨 | ✨ |
-
-<p align="center">
-<img src="assets/comparison.png">
-</p>
 
 ---
 
