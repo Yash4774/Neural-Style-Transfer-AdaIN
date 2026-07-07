@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Models
+*.pth
+
+# Training outputs
+experiments/
+outputs/
+
+# Large datasets
+content_data/
+style_data/
+
+# Environment
+.env
+.vscode/
+.ipynb_checkpoints/

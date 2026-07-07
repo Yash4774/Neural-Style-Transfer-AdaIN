@@ -1,0 +1,1055 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdaIN Style Transfer</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='uploads/favicon (2).png') }}">
+<style>
+
+    .ranbir-img {
+        width: 220px;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+        margin: 0 auto;
+        background: #111
+    }
+    .sketch-img {
+
+
+        width: 220px;
+        height: 220px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+        transform: translateX(15px);
+         
+    }
+    :root {
+        --bg: #05070d;
+        --panel: rgba(13, 18, 32, 0.76);
+        --panel-strong: rgba(17, 24, 39, 0.92);
+        --line: rgba(148, 163, 184, 0.18);
+        --line-strong: rgba(125, 211, 252, 0.42);
+        --text: #f8fafc;
+        --muted: #9aa7b7;
+        --cyan: #22d3ee;
+        --blue: #60a5fa;
+        --violet: #8b5cf6;
+        --green: #34d399;
+        --pink: #f472b6;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        background-image: 
+            radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 32rem),
+            radial-gradient(circle at 85% 15%, rgba(139, 92, 246, 0.18), transparent 36rem),
+            linear-gradient(135deg, rgba(5, 7, 13, 0.98), rgba(9, 14, 27, 0.94)),
+            url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1974&auto=format&fit=crop');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+    .header-section {
+        padding: 6.2rem 0 2.25rem;
+        text-align: center;
+        position: relative;
+    }
+    .header-section h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: clamp(2.25rem, 6vw, 4.35rem);
+        background: linear-gradient(90deg, #f8fafc 0%, #7dd3fc 35%, #c4b5fd 70%, #f0abfc 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 42px rgba(34, 211, 238, 0.18);
+        margin-bottom: 1rem;
+        letter-spacing: 0.02em;
+    }
+    .header-section .lead {
+        font-size: clamp(1rem, 2.4vw, 1.25rem);
+        color: #cbd5e1;
+        max-width: min(700px, calc(100vw - 2rem));
+        margin: 0 auto;
+    }
+    .project-meta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        margin-top: 1rem;
+        padding: 0.48rem 0.9rem;
+        border: 1px solid rgba(34, 211, 238, 0.24);
+        border-radius: 999px;
+        background: rgba(5, 7, 13, 0.48);
+        color: #b8c4d6;
+        font-size: 0.86rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26);
+    }
+    .project-meta i {
+        color: var(--cyan);
+    }
+    .card {
+        background: linear-gradient(180deg, rgba(20, 27, 44, 0.88), rgba(9, 13, 24, 0.78));
+        backdrop-filter: blur(18px);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    .card:hover {
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.62);
+        border-color: var(--line-strong);
+    }
+    .card-header {
+        background: linear-gradient(90deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
+        border-bottom: 1px solid var(--line);
+        color: var(--text);
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.82rem;
+    }
+    .preview-image {
+        width: 100%;
+        height: 300px;
+        object-fit: contain;
+        background: radial-gradient(circle at center, rgba(34, 211, 238, 0.13), rgba(11, 18, 32, 0.94));
+        border: 1px dashed rgba(125, 211, 252, 0.48);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #c4cedd;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        overflow: hidden;
+    }
+    .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+        border: none;
+        padding: 0.95rem 2.75rem;
+        font-size: 1rem;
+        font-family: 'Orbitron', sans-serif;
+        border-radius: 999px;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #ffffff;
+        box-shadow: 0 18px 36px -18px rgba(34, 211, 238, 0.85);
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #06b6d4 0%, #7c3aed 100%);
+        box-shadow: 0 24px 44px -18px rgba(139, 92, 246, 0.9);
+    }
+    .btn-glow {
+        animation: glowing 2s infinite;
+    }
+    @keyframes glowing {
+        0% { box-shadow: 0 0 5px var(--cyan); }
+        50% { box-shadow: 0 0 20px var(--cyan), 0 0 10px var(--violet); }
+        100% { box-shadow: 0 0 5px var(--cyan); }
+    }
+    /* Custom Range Slider */
+    .range-wrap {
+        position: relative;
+        margin: 2rem auto;
+        width: 100%;
+        max-width: 90%;
+    }
+    
+    #alphaRange {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        height: 10px;
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 15px;
+        outline: none;
+        border: 1px solid var(--line);
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.55);
+        transition: background 0.1s;
+    }
+    
+    #alphaRange::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        background: transparent;
+    }
+    
+    #alphaRange::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #f8fafc;
+        cursor: pointer;
+        margin-top: -6px;
+        box-shadow: 0 0 14px rgba(34, 211, 238, 0.85), 0 0 24px rgba(139, 92, 246, 0.65);
+        border: 3px solid #0f172a;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    #alphaRange::-webkit-slider-thumb:hover {
+        box-shadow: 0 0 15px var(--cyan), 0 0 30px var(--violet);
+    }
+
+    .range-value {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.85rem;
+        box-shadow: 0 8px 20px rgba(34, 211, 238, 0.28);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    .range-value::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px 5px 0;
+        border-style: solid;
+        border-color: var(--violet) transparent transparent transparent;
+    }
+    .range-wrap:hover .range-value {
+        opacity: 1;
+    }
+    .form-control {
+        background-color: rgba(5, 7, 13, 0.78);
+        border: 1px solid rgba(125, 211, 252, 0.24);
+        color: var(--text);
+        border-radius: 8px;
+        padding: 0.55rem;
+        min-height: 3.5rem;
+        font-weight: 600;
+    }
+    .form-control:focus {
+        background-color: rgba(5, 7, 13, 0.82);
+        border-color: var(--cyan);
+        color: var(--text);
+        box-shadow: 0 0 0 0.25rem rgba(34, 211, 238, 0.16);
+    }
+    .form-control::file-selector-button {
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(96, 165, 250, 0.13));
+        color: var(--text);
+        border: none;
+        padding: 0.75rem 1rem;
+        margin-right: 0.75rem;
+        border-radius: 6px;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        font-weight: 700;
+    }
+    .form-control::file-selector-button:hover {
+        background-color: rgba(34, 211, 238, 0.22);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.24) inset;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--bg); 
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.28); 
+        border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--cyan); 
+    }
+
+    /* Ambient Orbs */
+    .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: 0;
+        opacity: 0.24;
+        animation: floatOrb 15s infinite ease-in-out alternate;
+        pointer-events: none;
+    }
+    .orb-1 { top: -10%; left: -10%; width: 600px; height: 600px; background: radial-gradient(circle, var(--cyan), transparent 70%); }
+    .orb-2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: radial-gradient(circle, var(--violet), transparent 70%); animation-delay: -5s; }
+    .orb-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: radial-gradient(circle, var(--green), transparent 70%); animation-delay: -10s; opacity: 0.16; }
+
+    @keyframes floatOrb {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 50px) scale(1.1); }
+    }
+
+    /* Scanline Effect */
+    .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+        background-size: 100% 4px;
+        z-index: 9998;
+        pointer-events: none;
+        opacity: 0.18;
+    }    
+
+    /* Background Canvas */
+    #neuralCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+    }
+    .header-section, .container, .footer-section {
+        position: relative;
+        z-index: 1;
+    }    
+
+    /* Animations */
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Loader */
+    .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(5, 7, 13, 0.88);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .loader-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+    .cyber-spinner {
+        width: 80px;
+        height: 80px;
+        border: 4px solid transparent;
+        border-top: 4px solid var(--cyan);
+        border-right: 4px solid var(--violet);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.48);
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Navbar Styles */
+    .navbar {
+        background: rgba(5, 7, 13, 0.78);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--line);
+    }
+    .navbar-brand {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        background: linear-gradient(to right, #f8fafc, var(--cyan), var(--violet));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .nav-link {
+        color: #dbeafe !important;
+        font-weight: 500;
+        margin-left: 1rem;
+        transition: color 0.3s;
+        position: relative;
+    }
+    .nav-link:hover {
+        color: var(--cyan) !important;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--cyan);
+        transition: width 0.3s;
+    }
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    /* Footer Styles */
+    .footer-section {
+        background: rgba(5, 7, 13, 0.96);
+        border-top: 1px solid var(--line);
+        padding: 4rem 0 2rem;
+        margin-top: 5rem;
+        color: var(--muted);
+    }
+    .footer-section h5 {
+        color: var(--text);
+        font-family: 'Orbitron', sans-serif;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+    .footer-link {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.3s;
+        display: block;
+        margin-bottom: 0.8rem;
+    }
+    .footer-link:hover {
+        color: var(--cyan);
+    }
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        color: var(--text);
+        margin-right: 10px;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    .social-icon:hover {
+        background: var(--cyan);
+        color: white;
+        border-color: transparent;
+    }
+    .examples-section {
+        margin-top: 4rem;
+    }
+    .examples-section .example-image {
+        width: 100%;
+        height: 220px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: rgba(5, 7, 13, 0.82);
+    }
+    .examples-section .example-role {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: #dbeafe;
+        margin-bottom: 0.45rem;
+        text-transform: uppercase;
+    }
+    .examples-section .tree-connector {
+        color: var(--cyan);
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.04em;
+        margin: 0.2rem 0 0.4rem;
+    }
+    .examples-section .example-flow {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
+        background: rgba(5, 7, 13, 0.42);
+        border: 1px solid var(--line);
+    }
+    .examples-section .example-inputs {
+        flex: 1;
+        display: grid;
+        gap: 1rem;
+    }
+    .examples-section .example-output {
+        flex: 1;
+    }
+    .examples-section .example-arrow {
+        color: var(--cyan);
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .examples-section img {
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+    }
+    @media (max-width: 767.98px) {
+        .examples-section .example-flow {
+            flex-direction: column;
+        }
+        .examples-section .example-arrow {
+            transform: rotate(90deg);
+        }
+    }
+    .faq-section {
+        margin-top: 4rem;
+    }
+    .faq-section .accordion-item {
+        background: rgba(13, 18, 32, 0.74);
+        border: 1px solid var(--line);
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .faq-section .accordion-button {
+        background: rgba(5, 7, 13, 0.72);
+        color: #e2e8f0;
+        font-weight: 600;
+    }
+    .faq-section .accordion-button:not(.collapsed) {
+        background: rgba(34, 211, 238, 0.12);
+        color: var(--text);
+        box-shadow: none;
+    }
+    .faq-section .accordion-button:focus {
+        box-shadow: 0 0 0 0.2rem rgba(34, 211, 238, 0.14);
+    }
+    .faq-section .accordion-body {
+        color: var(--muted);
+        background: rgba(5, 7, 13, 0.38);
+    }
+    .text-muted {
+        color: var(--muted) !important;
+    }
+    .btn-outline-light {
+        border-color: rgba(248, 250, 252, 0.35);
+        color: #f8fafc;
+        border-radius: 999px;
+    }
+    .btn-outline-light:hover {
+        background: rgba(34, 211, 238, 0.16);
+        border-color: var(--cyan);
+        color: #ffffff;
+    }
+    .border-success {
+        border-color: rgba(52, 211, 153, 0.5) !important;
+    }
+    @media (max-width: 575.98px) {
+        .header-section {
+            padding-top: 5.7rem;
+        }
+        .project-meta {
+            border-radius: 8px;
+            flex-wrap: wrap;
+            max-width: calc(100vw - 2rem);
+        }
+        .preview-image {
+            height: 240px;
+        }
+        .nav-link {
+            margin-left: 0;
+        }
+        .navbar .btn {
+            margin: 0.75rem 0 0;
+            width: 100%;
+        }
+    }
+
+</style>
+</head>
+<body>
+
+<canvas id="neuralCanvas"></canvas>
+<div class="scanlines"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="fas fa-brain me-2"></i>NeuralArt</a>
+        <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Gallery</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+            </ul>
+            <a href="#" class="btn btn-sm btn-outline-light ms-3 rounded-pill px-4">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<div class="header-section">
+    <div class="container">
+        <h1 class="display-4 fw-bold">STYLEFORGE AI</h1>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 950px; margin: 2rem auto 0; width: 100%;">
+            
+            <div style="flex: 0 0 auto; min-width: 380px; text-align: left;">
+                <p class="lead m-0" style="border-right: 2px solid rgba(255,255,255,0.75); white-space: nowrap; overflow: hidden; width: 0; animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite; display: inline-block; vertical-align: middle;">
+                    Redefine Reality with AI-Powered Artistry
+                </p>
+            </div>
+            
+            <div style="flex: 0 0 auto;">
+                <div class="project-meta m-0" style="vertical-align: middle; display: inline-flex;">
+                    <i class="fas fa-microchip"></i>
+                    <span>Flask + PyTorch Neural style transfer using AdaIN</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5 fade-in-up">
+    <form method="post" enctype="multipart/form-data" id="uploadForm">
+        {{ form.hidden_tag() }}
+        {{ form.content_path() }}
+        {{ form.style_path() }}
+        
+        <div class="row g-4">
+            <!-- Content Image Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-3">Content Source</div>
+                    <div class="card-body text-center">
+                        <div class="preview-image mb-3" id="contentPreview">
+                            {% if content_image %}
+                                <img src="{{ url_for('send_image', filename=content_image) }}" alt="Content Image">
+                            {% else %}
+                                <span>Select Content Image</span>
+                            {% endif %}
+                        </div>
+                        {{ form.content(class="form-control", onchange="previewFile(this, 'contentPreview')") }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Style Image Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header text-center py-3">Style Reference</div>
+                    <div class="card-body text-center">
+                        <div class="preview-image mb-3" id="stylePreview">
+                            {% if style_image %}
+                                <img src="{{ url_for('send_image', filename=style_image) }}" alt="Style Image">
+                            {% else %}
+                                <span>Select Style Image</span>
+                            {% endif %}
+                        </div>
+                        {{ form.style(class="form-control", onchange="previewFile(this, 'stylePreview')") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <div class="range-wrap">
+                    <label for="alpha" class="form-label fw-bold mb-3 d-block text-center" style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px; color: #22d3ee;">STYLE STRENGTH</label>
+                    <div class="position-relative">
+                        <div class="range-value" id="rangeValue">1.0</div>
+                        {{ form.alpha(class="form-control-range", id="alphaRange", type="range", min="0", max="1", step="0.1") }}
+                    </div>
+                </div>
+                <div class="text-center mt-5">
+                    {{ form.submit(class="btn btn-primary shadow-lg btn-glow") }}
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if result_image %}
+    <div class="row justify-content-center mt-5" id="resultSection">
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white fw-bold text-center py-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Stylized Result</div>
+                <div class="card-body p-0">
+                    <img src="{{ url_for('send_image', filename=result_image, v=range(1, 1000000) | random) }}" class="img-fluid w-100" alt="Stylized Image" style="border-radius: 0 0 8px 8px;">
+                </div>
+                <div class="card-footer text-center" style="background: transparent; border-top: none; padding-bottom: 20px;">
+                    <a href="{{ url_for('send_image', filename=result_image) }}" download class="btn btn-outline-light mt-2">Download Result</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger mt-4 text-center" role="alert" style="background: rgba(220, 38, 38, 0.2); border-color: #dc2626; color: #fecaca;">
+            <strong>Error:</strong> {{ error }}
+        </div>
+    {% endif %}
+</div>
+
+<section class="container examples-section fade-in-up">
+    <div class="card">
+        <div class="card-header text-center py-3">Examples</div>
+        <div class="card-body">
+            <p class="text-center text-muted mb-4">Each example shows the content image, the style below it, and the final output beside them.</p>
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="example-flow">
+                        <div class="example-inputs">
+                            <div>
+                                <div class="example-role text-center">Content Image</div>
+                                <img src="{{ url_for('static', filename='uploads/tajmahajnight-1536x864.jpg') }}" class="img-fluid rounded">
+
+                            </div>
+                            <div>
+                                <div class="example-role text-center">Style Image</div>
+                                <img src="{{ url_for('static', filename='uploads/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg') }}" class="img-fluid rounded">
+
+                            </div>
+                        </div>
+                        <div class="example-arrow">-&gt;</div>
+                        <div class="example-output">
+                            <div class="example-role text-center">Output</div>
+                            <img src="{{ url_for('static', filename='uploads/stylized_tajmahajnight (4).jpg') }}" class="img-fluid rounded">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="example-flow">
+                        <div class="example-inputs">
+                            <div>
+                                <div class="example-role text-center">Content Image</div>
+                                <img src="{{ url_for('static', filename='uploads/ranbir.jpg') }}" class="image-fluid rounded ranbir-img">
+                           </div>
+                            <div>
+                                <div class="example-role text-center">Style Image</div>
+                                <img src="{{ url_for('static', filename='uploads/sketch.png') }}" class="img-fluid rounded sketch-img">
+                            </div>
+                        </div>
+                        <div class="example-arrow">-&gt;</div>
+                        <div class="example-output">
+                            <div class="example-role text-center">Output</div>
+                            <img src="{{ url_for('static', filename='uploads/stylized_ranbir.jpg') }}" class="img-fluid rounded">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container faq-section fade-in-up">
+    <div class="card">
+        <div class="card-header text-center py-3">FAQs</div>
+        <div class="card-body">
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeadingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne" aria-expanded="false" aria-controls="faqOne">
+                            1. Is it a pretrained model?
+                        </button>
+                    </h2>
+                    <div id="faqOne" class="accordion-collapse collapse" aria-labelledby="faqHeadingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            No, we train a model ourselves.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeadingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+                            2. Is it a free platform?
+                        </button>
+                    </h2>
+                    <div id="faqTwo" class="accordion-collapse collapse" aria-labelledby="faqHeadingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            This demo is currently available as a free experience.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeadingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+                            3. Which styles of painting can be used?
+                        </button>
+                    </h2>
+                    <div id="faqThree" class="accordion-collapse collapse" aria-labelledby="faqHeadingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can use almost any painting style image (impressionist, abstract, cubist, watercolor, sketch, and more) as the style reference.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeadingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqFour" aria-expanded="false" aria-controls="faqFour">
+                            4. Tech stack of the project?
+                        </button>
+                    </h2>
+                    <div id="faqFour" class="accordion-collapse collapse" aria-labelledby="faqHeadingFour" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Python, PyTorch, Flask, ADaIN.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeadingFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqFive" aria-expanded="false" aria-controls="faqFive">
+                            5. Which dataset / how big data?
+                        </button>
+                    </h2>
+                    <div id="faqFive" class="accordion-collapse collapse" aria-labelledby="faqHeadingFive" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            The model is trained on large-scale image datasets.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <h5><i class="fas fa-brain me-2"></i>NeuralArt</h5>
+                <p class="small text-white">"Every artist dips his brush in his own soul, and paints his own nature into his pictures."</p>
+                <p class="small text-white">Empowering creators with state-of-the-art AI tools to reimagine reality through the lens of artistic expression.</p>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <h5>Quick Links</h5>
+                <a href="#" class="footer-link">Home</a>
+                <a href="#" class="footer-link">About Us</a>
+                <a href="#" class="footer-link">Showcase</a>
+                <a href="#" class="footer-link">API Docs</a>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h5>Contact Us</h5>
+                <p class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Bihar, India</p>
+                <p class="mb-2"><i class="fas fa-envelope me-2"></i> k.sahil4774@gmail.com</p>
+                <p class="mb-2"><i class="fas fa-phone me-2"></i> +91 7352435704</p>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h5>Let's Connect</h5>
+                <div class="d-flex mb-3">
+                    <a href="https://www.linkedin.com/in/sahil-kumar-102198279/" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/Yash4774" class="social-icon"><i class="fab fa-github"></i></a>
+                </div>
+                <p class="small text-white">Connect & Follow to our Social Platforms for the latest updates.</p>
+            </div>
+        </div>
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+        <div class="text-center text-white small">
+            &copy; 2026 NeuralArt Inc. All rights reserved. | Privacy Policy | Terms of Service
+        </div>
+    </div>
+</footer>
+
+<!-- Loading Overlay -->
+<div class="loader-overlay" id="loader">
+    <div class="cyber-spinner mb-4"></div>
+    <h3 class="text-white" style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">PROCESSING</h3>
+    <p class="text-muted">Neural Network is dreaming...</p>
+</div>
+
+<style>
+    /* Typing Animation Keyframes */
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: rgba(255,255,255,0.75); }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function previewFile(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            // Convert image file to base64 string
+            preview.innerHTML = `<img src="${reader.result}" alt="Image Preview">`;
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Restore previews if page reloads with data (optional enhancement)
+    window.onload = function() {
+        if(document.getElementById('resultSection')) {
+            document.getElementById('resultSection').scrollIntoView({behavior: "smooth"});
+        }
+        // Neural Network Background Animation
+        const canvas = document.getElementById('neuralCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
+
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 3 + 1.5;
+                // Assign one of 10 colors to group nodes
+                this.hue = Math.floor(Math.random() * 10) * 36;
+                this.density = (Math.random() * 30) + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Mouse interaction
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        const directionX = forceDirectionX * force * this.density;
+                        const directionY = forceDirectionY * force * this.density;
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    }
+                }
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+                this.hue = (this.hue + 0.2) % 360;
+            }
+            draw() {
+                ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, 0.3)`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const numParticles = Math.floor(window.innerWidth / 15);
+            for (let i = 0; i < numParticles; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (d < 100) {
+                        ctx.strokeStyle = `hsla(${p.hue}, 70%, 60%, ${0.15 * (1 - d/100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => { resize(); initParticles(); });
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        });        
+        resize();
+        initParticles();
+        animate();
+        // Range Slider Logic
+        const range = document.getElementById('alphaRange');
+        const rangeValue = document.getElementById('rangeValue');
+
+        function updateRange() {
+            const val = range.value;
+            const min = range.min || 0;
+            const max = range.max || 1;
+            const percentage = ((val - min) * 100) / (max - min);
+            
+            rangeValue.textContent = val;
+            // Adjust position of the bubble to follow the thumb
+            const thumbWidth = 24;
+            const offset = thumbWidth/2 - (percentage * thumbWidth / 100);
+            rangeValue.style.left = `calc(${percentage}% + ${offset}px)`;
+            
+            // Update gradient background
+            range.style.background = `linear-gradient(to right, #22d3ee 0%, #8b5cf6 ${percentage}%, rgba(15, 23, 42, 0.9) ${percentage}%, rgba(15, 23, 42, 0.9) 100%)`;
+        }
+
+        if(range) {
+            range.addEventListener('input', updateRange);
+            updateRange(); // Init
+        }
+
+
+    }
+</script>
+</body>
+</html>
