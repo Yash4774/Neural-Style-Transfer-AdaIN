@@ -8,7 +8,6 @@
   <img src="https://img.shields.io/badge/PyTorch-Deep%20Learning-red?style=for-the-badge&logo=pytorch">
   <img src="https://img.shields.io/badge/Flask-Web%20App-black?style=for-the-badge&logo=flask">
   <img src="https://img.shields.io/badge/OpenCV-Computer%20Vision-green?style=for-the-badge&logo=opencv">
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge">
 </p>
 
 ### ✨ Transform any image into artwork in seconds using AI.
