@@ -35,9 +35,19 @@ class UploadForm(FlaskForm):
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-encoder = VGGEncoder('vgg_normalised.pth').to(device)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+VGG_PATH = os.path.join(BASE_DIR, "vgg_normalised.pth")
+DECODER_PATH = os.path.join(
+    BASE_DIR,
+    "experiments",
+    "final_experiment",
+    "decoder_180.pth"
+)
+
+encoder = VGGEncoder(VGG_PATH).to(device)
 decoder = Decoder().to(device)
-decoder.load_state_dict(torch.load(r"D:\NST_CODE\experiments\final_experiment\decoder 180.pth", map_location='cpu'), strict=False)
+decoder.load_state_dict(torch.load(DECODER_PATH, map_location='cpu'), strict=False)
 
 
 encoder.eval()
