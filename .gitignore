@@ -3,10 +3,10 @@ __pycache__/
 *.pyc
 
 # Models
-*.pth
+# *.pth
 
 # Training outputs
-experiments/
+# experiments/
 outputs/
 
 # Large datasets
