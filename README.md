@@ -14,31 +14,6 @@
 
 ---
 
-## 🎥 Demo
-
-> 📺 **Watch Demo Video**
-
-https://github.com/YOUR_USERNAME/StyleForge-AI/assets/demo.mp4
-
----
-
-## 🖼️ Project Preview
-
-### Home Page
-
-<p align="center">
-<img src="assets/homepage.png" width="900">
-</p>
-
----
-
-### Style Transfer Result
-
-<p align="center">
-<img src="assets/result.png" width="900">
-</p>
-
----
 
 ## 🚀 Features
 
