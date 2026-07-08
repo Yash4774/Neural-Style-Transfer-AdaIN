@@ -40,8 +40,6 @@
 
 📱 Responsive UI
 
-🔥 High-quality 512×512 inference
-
 🧠 Deep Learning powered by PyTorch
 
 ---
@@ -168,7 +166,6 @@ python train.py \
 
 # 📊 Performance
 
-- Resolution : **512 × 512**
 - Framework : **PyTorch**
 - Architecture : **AdaIN**
 - Backend : **Flask**
