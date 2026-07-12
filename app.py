@@ -42,7 +42,7 @@ DECODER_PATH = os.path.join(
     BASE_DIR,
     "experiments",
     "final_experiment",
-    "decoder 180.pth"
+    "decoder 205.pth"
 )
 
 encoder = VGGEncoder(VGG_PATH).to(device)
