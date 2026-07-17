@@ -47,7 +47,6 @@
 # 🧠 Model Architecture
 
 <p align="center">
-<img src="assets/architecture.png" width="850">
 </p>
 
 ### Pipeline
@@ -60,7 +59,7 @@ AdaIN Layer
 ⬇
 Decoder Network
 ⬇
-Stylized Image
+Stylized Image (512 x 512)
 
 ---
 
@@ -147,7 +146,7 @@ Train the model
 python train.py \
 --content_dir DATASET \
 --style_dir STYLESET \
---epochs 180
+--epochs 205
 ```
 
 Resume Training
@@ -155,8 +154,8 @@ Resume Training
 ```bash
 python train.py \
 --resume \
---decoder_path decoder_180.pth \
---optimizer_path optimizer_180.pth
+--decoder_path decoder_205.pth \
+--optimizer_path optimizer_205.pth
 ```
 
 ---
@@ -170,7 +169,8 @@ python train.py \
 - Architecture : **AdaIN**
 - Backend : **Flask**
 - GPU Training : **Kaggle T4**
-- Training Epochs : **185**
+- Training Epochs : **205**
+- Stylised Image Quality: **512**
 
 ---
 
