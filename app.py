@@ -9,6 +9,7 @@ from wtforms.validators import InputRequired
 from PIL import Image
 from torchvision import transforms
 import io
+import uuid
 
 # Import your existing AdaIN code
 from utils.models import VGGEncoder, Decoder
@@ -107,7 +108,7 @@ def index():
     if form.validate_on_submit():
         if form.content.data and form.content.data.filename:
             if allowed_file(form.content.data.filename):
-                content_filename = secure_filename(form.content.data.filename)
+                content_filename = f"{uuid.uuid4().hex[:8]}_{secure_filename(form.content.data.filename)}"
                 form.content.data.save(os.path.join(app.config['UPLOAD_FOLDER'], content_filename))
                 form.content_path.data = content_filename
             else:
@@ -117,7 +118,7 @@ def index():
 
         if form.style.data and form.style.data.filename:
             if allowed_file(form.style.data.filename):
-                style_filename = secure_filename(form.style.data.filename)
+                style_filename = f"{uuid.uuid4().hex[:8]}_{secure_filename(form.style.data.filename)}"
                 form.style.data.save(os.path.join(app.config['UPLOAD_FOLDER'], style_filename))
                 form.style_path.data = style_filename
             else:
